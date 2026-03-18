@@ -75,9 +75,10 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
   const currentMenuItems = menuItems[role as keyof typeof menuItems] || [];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
-      {/* Sidebar Desktop */}
-      <aside className="hidden md:flex flex-col w-64 bg-white border-r border-slate-200 p-6">
+    <div className="min-h-screen bg-slate-50">
+
+      {/* Sidebar Desktop — fixed, full height */}
+      <aside className="hidden md:flex flex-col fixed top-0 left-0 h-screen w-64 bg-white border-r border-slate-200 p-6 z-30">
         <div className="flex items-center space-x-3 mb-10 px-2">
           <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center">
             <Activity className="text-white w-6 h-6" />
@@ -85,7 +86,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
           <span className="text-xl font-bold text-slate-900">HealthCare</span>
         </div>
 
-        <nav className="flex-1 space-y-1">
+        <nav className="flex-1 space-y-1 overflow-y-auto">
           {currentMenuItems.map((item) => (
             <SidebarItem
               key={item.to}
@@ -97,7 +98,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
           ))}
         </nav>
 
-        <div className="mt-auto pt-6 border-t border-slate-100">
+        <div className="pt-6 border-t border-slate-100">
           <div className="flex items-center space-x-3 px-2 mb-6">
             <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
               <Users className="text-slate-500 w-5 h-5" />
@@ -154,10 +155,11 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
         </div>
       )}
 
-      {/* Main Content */}
-      <main className="flex-1 md:ml-0 p-4 md:p-8 pt-20 md:pt-8 overflow-auto">
+      {/* Main Content — offset by sidebar width */}
+      <main className="md:ml-64 p-4 md:p-8 pt-20 md:pt-8 min-h-screen">
         {children}
       </main>
+
     </div>
   );
 };

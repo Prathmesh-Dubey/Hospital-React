@@ -19,6 +19,12 @@ import { PatTestList } from './components/doctor/docPatTest';
 import { MedicineList } from './components/doctor/docMedicine';
 import { AddMedicine } from './components/doctor/docAddMedicine';
 import { MedicalTestPatientList } from './components/doctor/doc-medicalTest';
+import { TestHistoryList } from './components/doctor/docTestHistory';
+import { TestDetailView } from './components/doctor/docDetailedTest';
+import { AddMedicalTest } from './components/doctor/docAddMedTest';
+import { PatDoctorList } from './components/patient/patDoctors';
+import { PatientTestList } from './components/patient/patTestList';
+import { PatientTestDetail } from './components/patient/patDetailTest';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode, allowedRole: string }> = ({ children, allowedRole }) => {
   const role = localStorage.getItem('role');
@@ -149,8 +155,25 @@ export default function App() {
             <MedicalTestPatientList />
           </ProtectedRoute>
         } />
+        <Route path="/doctor/tests/history/:patientId" element={
+          <ProtectedRoute allowedRole="DOCTOR">
+            <TestHistoryList />
+          </ProtectedRoute>
+        } />
+        <Route path="/doctor/tests/view/:testId" element={
+          <ProtectedRoute allowedRole="DOCTOR">
+            <TestDetailView />
+          </ProtectedRoute>
+        } />
 
-
+        <Route path="/doctor/addTest" element={<ProtectedRoute allowedRole="DOCTOR">
+          <AddMedicalTest />
+        </ProtectedRoute>
+        } />
+        <Route path="/doctor/addTest/edit/:testId" element={<ProtectedRoute allowedRole="DOCTOR">
+          <AddMedicalTest />
+        </ProtectedRoute>
+        } />
 
 
 
@@ -164,13 +187,21 @@ export default function App() {
 
         <Route path="/patient/doctors" element={
           <ProtectedRoute allowedRole="PATIENT">
-            <DoctorList />
+            <PatDoctorList />
           </ProtectedRoute>
         } />
         <Route path="/patient/prescriptions" element={
           <ProtectedRoute allowedRole="PATIENT">
           </ProtectedRoute>
         } />
+        <Route path="/patient/tests/view/:testId" element={
+          <ProtectedRoute allowedRole="PATIENT">
+            <PatientTestDetail />
+          </ProtectedRoute>
+        } />
+        <Route path="/patient/tests"element={<ProtectedRoute allowedRole="PATIENT">
+          <PatientTestList />
+        </ProtectedRoute>} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

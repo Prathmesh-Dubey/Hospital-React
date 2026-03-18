@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { prescriptionApi } from "../../services/api";
 import { Button, Input, Card } from "../UI"; // Adjust import path as needed

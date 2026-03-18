@@ -79,6 +79,7 @@ export const medicalTestApi = {
   getByDoctor: (doctorId: string) => api.get(`/medical-tests/doctor/${doctorId}`),
   update: (id: string, data: any) => api.put(`/medical-tests/${id}`, data),
   delete: (id: string) => api.delete(`/medical-tests/${id}`),
+  getByTestId: (testId: string) => api.get(`/medical-tests/test/${testId}`),
 };
 
 // Prescription API
