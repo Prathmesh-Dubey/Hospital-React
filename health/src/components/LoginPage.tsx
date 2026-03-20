@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button, Input, Card } from './UI';
 import { adminApi, doctorApi, patientApi } from '../services/api';
 import { UserRole } from '../types';
-import { Activity, Shield, User, Stethoscope } from 'lucide-react';
+import { Activity, Shield, User, Stethoscope, HeadphonesIcon } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const [role, setRole] = useState<UserRole>('PATIENT');
@@ -31,19 +31,9 @@ export const LoginPage: React.FC = () => {
       localStorage.setItem('user', JSON.stringify(response.data));
       localStorage.setItem('role', role);
 
-      // Store the MongoDB ID for the user
-      // Store MongoDB IDs
-      if (role === 'DOCTOR') {
-        localStorage.setItem('doctorId', response.data.userId);
-      }
-
-      if (role === 'PATIENT') {
-        localStorage.setItem('patientId', response.data.userId);
-      }
-
-      if (role === 'ADMIN') {
-        localStorage.setItem('adminId', response.data.userId);
-      }
+      if (role === 'DOCTOR') localStorage.setItem('doctorId', response.data.userId);
+      if (role === 'PATIENT') localStorage.setItem('patientId', response.data.userId);
+      if (role === 'ADMIN') localStorage.setItem('adminId', response.data.userId);
 
       navigate(`/${role.toLowerCase()}/dashboard`);
     } catch (err: any) {
@@ -67,24 +57,27 @@ export const LoginPage: React.FC = () => {
         <div className="flex p-1 bg-slate-100 rounded-xl mb-6">
           <button
             onClick={() => setRole('PATIENT')}
-            className={`flex-1 flex items-center justify-center py-2 rounded-lg text-sm font-medium transition-all ${role === 'PATIENT' ? 'bg-white shadow-sm text-emerald-600' : 'text-slate-500 hover:text-slate-700'
-              }`}
+            className={`flex-1 flex items-center justify-center py-2 rounded-lg text-sm font-medium transition-all ${
+              role === 'PATIENT' ? 'bg-white shadow-sm text-emerald-600' : 'text-slate-500 hover:text-slate-700'
+            }`}
           >
             <User className="w-4 h-4 mr-2" />
             Patient
           </button>
           <button
             onClick={() => setRole('DOCTOR')}
-            className={`flex-1 flex items-center justify-center py-2 rounded-lg text-sm font-medium transition-all ${role === 'DOCTOR' ? 'bg-white shadow-sm text-emerald-600' : 'text-slate-500 hover:text-slate-700'
-              }`}
+            className={`flex-1 flex items-center justify-center py-2 rounded-lg text-sm font-medium transition-all ${
+              role === 'DOCTOR' ? 'bg-white shadow-sm text-emerald-600' : 'text-slate-500 hover:text-slate-700'
+            }`}
           >
             <Stethoscope className="w-4 h-4 mr-2" />
             Doctor
           </button>
           <button
             onClick={() => setRole('ADMIN')}
-            className={`flex-1 flex items-center justify-center py-2 rounded-lg text-sm font-medium transition-all ${role === 'ADMIN' ? 'bg-white shadow-sm text-emerald-600' : 'text-slate-500 hover:text-slate-700'
-              }`}
+            className={`flex-1 flex items-center justify-center py-2 rounded-lg text-sm font-medium transition-all ${
+              role === 'ADMIN' ? 'bg-white shadow-sm text-emerald-600' : 'text-slate-500 hover:text-slate-700'
+            }`}
           >
             <Shield className="w-4 h-4 mr-2" />
             Admin
@@ -103,7 +96,15 @@ export const LoginPage: React.FC = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-sm font-medium text-slate-700">Password</label>
+              <Link
+                to="/forgot-password"
+                className="text-xs text-emerald-600 hover:underline font-medium"
+              >
+                Forgot password?
+              </Link>
+            </div>
             <Input
               type="password"
               placeholder="••••••••"
@@ -120,11 +121,23 @@ export const LoginPage: React.FC = () => {
           </Button>
         </form>
 
-        <div className="mt-6 text-center">
-          <p className="text-slate-500 text-sm">
-            Don't have an account?{' '}
-            <button className="text-emerald-600 font-medium hover:underline">Sign up</button>
-          </p>
+        <div className="mt-6 space-y-3">
+          <div className="text-center">
+            <p className="text-slate-500 text-sm">
+              Don't have an account?{' '}
+              <Link to="/signup" className="text-emerald-600 font-medium hover:underline">Sign up</Link>
+            </p>
+          </div>
+
+          <div className="border-t border-slate-100 pt-3 text-center">
+            <Link
+              to="/contact-support"
+              className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-emerald-600 transition"
+            >
+              <HeadphonesIcon className="w-3.5 h-3.5" />
+              Contact Support
+            </Link>
+          </div>
         </div>
       </Card>
     </div>

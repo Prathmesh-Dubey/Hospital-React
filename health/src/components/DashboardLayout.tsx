@@ -1,17 +1,8 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
-  LayoutDashboard, 
-  Users, 
-  Stethoscope, 
-  Building2, 
-  Pill, 
-  TestTube, 
-  FileText, 
-  LogOut,
-  Activity,
-  Menu,
-  X
+  LayoutDashboard, Users, Stethoscope, Building2, Pill, 
+  TestTube, FileText, LogOut, Activity, Menu, X, Sun, Moon
 } from 'lucide-react';
 import { Button } from './UI';
 
@@ -20,15 +11,16 @@ interface SidebarItemProps {
   icon: React.ReactNode;
   label: string;
   active?: boolean;
+  dark?: boolean;
 }
 
-const SidebarItem: React.FC<SidebarItemProps> = ({ to, icon, label, active }) => (
+const SidebarItem: React.FC<SidebarItemProps> = ({ to, icon, label, active, dark }) => (
   <Link
     to={to}
     className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-      active 
-        ? 'bg-emerald-50 text-emerald-600 font-medium' 
-        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+      active
+        ? dark ? 'bg-emerald-900/40 text-emerald-400 font-medium' : 'bg-emerald-50 text-emerald-600 font-medium'
+        : dark ? 'text-slate-400 hover:bg-slate-700 hover:text-white' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
     }`}
   >
     {icon}
@@ -40,50 +32,107 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const [isDark, setIsDark] = React.useState(() => {
+    return localStorage.getItem('theme') === 'dark';
+  });
+
   const role = localStorage.getItem('role') || 'PATIENT';
   const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+  React.useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDark]);
+
+  const toggleTheme = () => setIsDark(prev => !prev);
 
   const handleLogout = () => {
     localStorage.clear();
     navigate('/');
   };
 
+  const profileRoute = {
+    ADMIN:   '/admin/profile',
+    DOCTOR:  '/doctor/profile',
+    PATIENT: '/patient/profile',
+  }[role] || '/';
+
   const menuItems = {
     ADMIN: [
       { to: '/admin/dashboard', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
-      { to: '/admin/clinics', icon: <Building2 size={20} />, label: 'Clinics' },
-      { to: '/admin/doctors', icon: <Stethoscope size={20} />, label: 'Doctors' },
-      { to: '/admin/patients', icon: <Users size={20} />, label: 'Patients' },
-      { to: '/admin/admins', icon: <Users size={20} />, label: 'Admins' },
+      { to: '/admin/clinics',   icon: <Building2 size={20} />,       label: 'Clinics' },
+      { to: '/admin/doctors',   icon: <Stethoscope size={20} />,     label: 'Doctors' },
+      { to: '/admin/patients',  icon: <Users size={20} />,           label: 'Patients' },
+      { to: '/admin/admins',    icon: <Users size={20} />,           label: 'Admins' },
     ],
     DOCTOR: [
-      { to: '/doctor/dashboard', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
-      { to: '/doctor/patients', icon: <Users size={20} />, label: 'My Patients' },
-      { to: '/doctor/prescriptions', icon: <FileText size={20} />, label: 'Prescriptions' },
-      { to: '/doctor/medicines', icon: <Pill size={20} />, label: 'Medicines' },
-      { to: '/doctor/tests', icon: <TestTube size={20} />, label: 'Medical Tests' },
+      { to: '/doctor/dashboard',     icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
+      { to: '/doctor/clinics',       icon: <Building2 size={20} />,       label: 'Clinics' },
+      { to: '/doctor/patients',      icon: <Users size={20} />,           label: 'My Patients' },
+      { to: '/doctor/prescriptions', icon: <FileText size={20} />,        label: 'Prescriptions' },
+      { to: '/doctor/medicines',     icon: <Pill size={20} />,            label: 'Medicines' },
+      { to: '/doctor/tests',         icon: <TestTube size={20} />,        label: 'Medical Tests' },
     ],
     PATIENT: [
-      { to: '/patient/dashboard', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
-      { to: '/patient/prescriptions', icon: <FileText size={20} />, label: 'My Prescriptions' },
-      { to: '/patient/medicines', icon: <Pill size={20} />, label: 'My Medicines' },
-      { to: '/patient/tests', icon: <TestTube size={20} />, label: 'My Tests' },
-      { to: '/patient/doctors', icon: <Stethoscope size={20} />, label: 'My Doctors' },
+      { to: '/patient/dashboard',     icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
+      { to: '/patient/clinics',       icon: <Building2 size={20} />,       label: 'Clinics' },
+      { to: '/patient/doctors',       icon: <Stethoscope size={20} />,     label: 'My Doctors' },
+      { to: '/patient/prescriptions', icon: <FileText size={20} />,        label: 'My Prescriptions' },
+      { to: '/patient/tests',         icon: <TestTube size={20} />,        label: 'My Tests' },
     ],
   };
 
   const currentMenuItems = menuItems[role as keyof typeof menuItems] || [];
+  const displayName = user.username || user.name || user.fullName || role;
+  const initials = displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+
+  // Dynamic classes based on dark mode
+  const sidebarBg    = isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200';
+  const mainBg       = isDark ? 'bg-slate-900' : 'bg-slate-50';
+  const logoText     = isDark ? 'text-white' : 'text-slate-900';
+  const dividerColor = isDark ? 'border-slate-700' : 'border-slate-100';
+  const mobileBg     = isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200';
+  const mobileText   = isDark ? 'text-white' : 'text-slate-900';
+
+  const ThemeToggle = () => (
+    <button
+      onClick={toggleTheme}
+      className={`flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 mb-1 ${
+        isDark
+          ? 'text-slate-400 hover:bg-slate-700 hover:text-white'
+          : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+      }`}
+    >
+      <div className="flex items-center space-x-3">
+        {isDark ? <Sun size={20} /> : <Moon size={20} />}
+        <span>{isDark ? 'Light Mode' : 'Dark Mode'}</span>
+      </div>
+      {/* Toggle pill */}
+      <div className={`w-10 h-5 rounded-full transition-colors duration-300 flex items-center px-0.5 ${
+        isDark ? 'bg-emerald-500' : 'bg-slate-300'
+      }`}>
+        <div className={`w-4 h-4 rounded-full bg-white shadow transition-transform duration-300 ${
+          isDark ? 'translate-x-5' : 'translate-x-0'
+        }`} />
+      </div>
+    </button>
+  );
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className={`min-h-screen ${mainBg} transition-colors duration-300`}>
 
-      {/* Sidebar Desktop — fixed, full height */}
-      <aside className="hidden md:flex flex-col fixed top-0 left-0 h-screen w-64 bg-white border-r border-slate-200 p-6 z-30">
+      {/* Sidebar Desktop */}
+      <aside className={`hidden md:flex flex-col fixed top-0 left-0 h-screen w-64 ${sidebarBg} border-r p-6 z-30 transition-colors duration-300`}>
         <div className="flex items-center space-x-3 mb-10 px-2">
           <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center">
             <Activity className="text-white w-6 h-6" />
           </div>
-          <span className="text-xl font-bold text-slate-900">HealthCare</span>
+          <span className={`text-xl font-bold ${logoText}`}>HealthCare</span>
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto">
@@ -94,23 +143,38 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
               icon={item.icon}
               label={item.label}
               active={location.pathname === item.to}
+              dark={isDark}
             />
           ))}
         </nav>
 
-        <div className="pt-6 border-t border-slate-100">
-          <div className="flex items-center space-x-3 px-2 mb-6">
-            <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
-              <Users className="text-slate-500 w-5 h-5" />
+        <div className={`pt-4 border-t ${dividerColor}`}>
+          {/* Theme toggle */}
+          <ThemeToggle />
+
+          {/* Profile */}
+          <button
+            onClick={() => navigate(profileRoute)}
+            className={`w-full flex items-center space-x-3 px-2 mb-3 rounded-xl py-2 transition-all duration-200 group ${
+              location.pathname === profileRoute
+                ? isDark ? 'bg-emerald-900/40' : 'bg-emerald-50'
+                : isDark ? 'hover:bg-slate-700' : 'hover:bg-slate-50'
+            }`}
+          >
+            <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center shrink-0">
+              <span className="text-sm font-bold text-emerald-700">{initials}</span>
             </div>
-            <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-medium text-slate-900 truncate">{user.username || user.name || user.fullName}</p>
-              <p className="text-xs text-slate-500 truncate">{role}</p>
+            <div className="flex-1 overflow-hidden text-left">
+              <p className={`text-sm font-medium truncate group-hover:text-emerald-600 transition-colors ${isDark ? 'text-slate-200' : 'text-slate-900'}`}>
+                {displayName}
+              </p>
+              <p className={`text-xs truncate ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>{role}</p>
             </div>
-          </div>
+          </button>
+
           <Button
             variant="ghost"
-            className="w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-700"
+            className="w-full justify-start text-red-500 hover:bg-red-500/10 hover:text-red-400"
             onClick={handleLogout}
           >
             <LogOut size={20} className="mr-3" />
@@ -120,19 +184,25 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
       </aside>
 
       {/* Mobile Header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 bg-white border-b border-slate-200 z-50 px-4 py-3 flex items-center justify-between">
+      <div className={`md:hidden fixed top-0 left-0 right-0 ${mobileBg} border-b z-50 px-4 py-3 flex items-center justify-between transition-colors duration-300`}>
         <div className="flex items-center space-x-2">
           <Activity className="text-emerald-600 w-6 h-6" />
-          <span className="font-bold text-slate-900">HealthCare</span>
+          <span className={`font-bold ${mobileText}`}>HealthCare</span>
         </div>
-        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-          {isMobileMenuOpen ? <X /> : <Menu />}
-        </button>
+        <div className="flex items-center gap-3">
+          {/* Mobile theme toggle icon */}
+          <button onClick={toggleTheme} className={`p-1.5 rounded-lg transition ${isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'}`}>
+            {isDark ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className={mobileText}>
+            {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 bg-white z-40 pt-16 p-6">
+        <div className={`md:hidden fixed inset-0 ${mobileBg} z-40 pt-16 p-6 transition-colors duration-300`}>
           <nav className="space-y-2">
             {currentMenuItems.map((item) => (
               <SidebarItem
@@ -141,11 +211,25 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
                 icon={item.icon}
                 label={item.label}
                 active={location.pathname === item.to}
+                dark={isDark}
               />
             ))}
+
+            <button
+              onClick={() => { navigate(profileRoute); setIsMobileMenuOpen(false); }}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+                isDark ? 'text-slate-400 hover:bg-slate-700 hover:text-white' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+              }`}
+            >
+              <div className="w-7 h-7 bg-emerald-100 rounded-full flex items-center justify-center shrink-0">
+                <span className="text-xs font-bold text-emerald-700">{initials}</span>
+              </div>
+              <span>My Profile</span>
+            </button>
+
             <Button
               variant="ghost"
-              className="w-full justify-start text-red-600 mt-6"
+              className="w-full justify-start text-red-500 mt-2"
               onClick={handleLogout}
             >
               <LogOut size={20} className="mr-3" />
@@ -155,8 +239,8 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
         </div>
       )}
 
-      {/* Main Content — offset by sidebar width */}
-      <main className="md:ml-64 p-4 md:p-8 pt-20 md:pt-8 min-h-screen">
+      {/* Main Content */}
+      <main className="md:ml-64 p-4 md:p-8 pt-20 md:pt-8 min-h-screen transition-colors duration-300">
         {children}
       </main>
 

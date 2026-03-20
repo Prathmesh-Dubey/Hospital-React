@@ -5,7 +5,7 @@ import { DashboardLayout } from './components/DashboardLayout';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { ClinicList } from './components/admin/ClinicList';
 import { DoctorDashboard } from './components/doctor/DoctorDashboard';
-import { PatientDashboard } from './components/admin/PatientDashboard';
+import { PatientDashboard } from './components/patient/PatientDashboard';
 import { DoctorList } from './components/admin/DoctorList';
 import { PatientList } from './components/admin/PatientList';
 import { ClinicForm } from './components/admin/ClinicForm';
@@ -25,6 +25,16 @@ import { AddMedicalTest } from './components/doctor/docAddMedTest';
 import { PatDoctorList } from './components/patient/patDoctors';
 import { PatientTestList } from './components/patient/patTestList';
 import { PatientTestDetail } from './components/patient/patDetailTest';
+import { PatientPrescriptionList } from './components/patient/patRx';
+import { PatPrescriptionDetail } from './components/patient/patDetailRx';
+import { PatClinicList } from './components/patient/patClinic';
+import { DocClinicList } from './components/doctor/docClinics';
+import { PatientProfile } from './components/patient/patProfile';
+import { DoctorProfile } from './components/doctor/docProfile';
+import { AdminProfile } from './components/admin/profile';
+import { SignupPage } from './components/signUp';
+import { ForgotPasswordPage } from './components/forgot-pass';
+import { ContactSupportPage } from './components/contact-support';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode, allowedRole: string }> = ({ children, allowedRole }) => {
   const role = localStorage.getItem('role');
@@ -77,6 +87,11 @@ export default function App() {
         <Route path="/admin/admins" element={
           <ProtectedRoute allowedRole="ADMIN">
             <div className="p-8"><h1 className="text-2xl font-bold">Admins Management</h1><p className="text-slate-500">Coming soon...</p></div>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/profile" element={
+          <ProtectedRoute allowedRole="ADMIN">
+            <AdminProfile />
           </ProtectedRoute>
         } />
 
@@ -174,6 +189,16 @@ export default function App() {
           <AddMedicalTest />
         </ProtectedRoute>
         } />
+        <Route path="/doctor/clinics" element={
+          <ProtectedRoute allowedRole="DOCTOR">
+            <DocClinicList />
+          </ProtectedRoute>
+        } />
+        <Route path="/doctor/profile" element={
+          <ProtectedRoute allowedRole="DOCTOR">
+            <DoctorProfile />
+          </ProtectedRoute>
+        } />
 
 
 
@@ -192,6 +217,7 @@ export default function App() {
         } />
         <Route path="/patient/prescriptions" element={
           <ProtectedRoute allowedRole="PATIENT">
+            <PatientPrescriptionList />
           </ProtectedRoute>
         } />
         <Route path="/patient/tests/view/:testId" element={
@@ -199,11 +225,32 @@ export default function App() {
             <PatientTestDetail />
           </ProtectedRoute>
         } />
-        <Route path="/patient/tests"element={<ProtectedRoute allowedRole="PATIENT">
+        <Route path="/patient/tests" element={<ProtectedRoute allowedRole="PATIENT">
           <PatientTestList />
         </ProtectedRoute>} />
 
+        <Route path="/patient/prescriptions/:prescriptionId" element={
+          <ProtectedRoute allowedRole="PATIENT">
+            <PatPrescriptionDetail />
+          </ProtectedRoute>} />
+
+        <Route path="/patient/Clinics" element={
+          <ProtectedRoute allowedRole="PATIENT">
+            <PatClinicList />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/patient/profile" element={
+          <ProtectedRoute allowedRole="PATIENT">
+            <PatientProfile />
+          </ProtectedRoute>
+        } />
+
+
         {/* Fallback */}
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/contact-support" element={<ContactSupportPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

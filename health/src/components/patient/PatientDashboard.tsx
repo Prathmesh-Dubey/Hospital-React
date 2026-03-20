@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Button } from '../UI';
 import { prescriptionApi, medicineApi, medicalTestApi } from '../../services/api';
-import { 
-  FileText, 
-  Pill, 
-  TestTube, 
+import {
+  FileText,
+  Pill,
+  TestTube,
   Activity,
   Calendar,
   Download,
@@ -17,11 +17,30 @@ export const PatientDashboard: React.FC = () => {
     medicines: 0,
     tests: 0
   });
-  const patient = JSON.parse(localStorage.getItem('user') || '{}');
+  const [patient, setPatient] = useState<any>({});
+  const patientId = localStorage.getItem('patientId') || localStorage.getItem('userId');
+
+  useEffect(() => {
+    const loadPatient = async () => {
+      if (!patientId) return;
+
+      try {
+        const res = await fetch(`http://localhost:8080/api/patients/by-patient-id/${patientId}`);
+        const data = await res.json();
+
+        setPatient(data);
+      } catch (err) {
+        console.error("Failed to load patient", err);
+      }
+    };
+
+    loadPatient();
+  }, [patientId]);
+
 
   useEffect(() => {
     const fetchStats = async () => {
-      if (!patient.patientId) return;
+      if (!patientId) return;
       try {
         const [prescriptions, medicines, tests] = await Promise.all([
           prescriptionApi.getByPatient(patient.patientId),
@@ -60,23 +79,23 @@ export const PatientDashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <StatCard 
-          icon={<FileText className="text-blue-600" />} 
-          label="Prescriptions" 
-          value={stats.prescriptions} 
-          color="bg-blue-50" 
+        <StatCard
+          icon={<FileText className="text-blue-600" />}
+          label="Prescriptions"
+          value={stats.prescriptions}
+          color="bg-blue-50"
         />
-        <StatCard 
-          icon={<Pill className="text-emerald-600" />} 
-          label="Active Medicines" 
-          value={stats.medicines} 
-          color="bg-emerald-50" 
+        <StatCard
+          icon={<Pill className="text-emerald-600" />}
+          label="Active Medicines"
+          value={stats.medicines}
+          color="bg-emerald-50"
         />
-        <StatCard 
-          icon={<TestTube className="text-purple-600" />} 
-          label="Medical Tests" 
-          value={stats.tests} 
-          color="bg-purple-50" 
+        <StatCard
+          icon={<TestTube className="text-purple-600" />}
+          label="Medical Tests"
+          value={stats.tests}
+          color="bg-purple-50"
         />
       </div>
 
